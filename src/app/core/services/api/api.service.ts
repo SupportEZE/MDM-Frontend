@@ -27,13 +27,12 @@ export class ApiService {
   // public baseUrl  ='http://192.168.0.108:9001/eurobond/';
 
   
-  public rootUrl = 'https://ozonemdm.ezeone.tech/ozonemdm/';
-  public upload = 'https://ozonemdm.ezeone.tech';
-  public baseUrl = 'https://ozonemdm.ezeone.tech/ozonemdm-api/';
-  public authUrl = 'https://ozonemdm.ezeone.tech/ozonemdm-api/auth/';
-  public adminUrl = 'https://ozonemdm.ezeone.tech/ozonemdm-api/';
-  public webSocketUrl = 'https://ozonemdm.ezeone.tech';
-
+public rootUrl = 'http://13.127.63.13:8080/';
+public upload = 'http://13.127.63.13:9010';
+public baseUrl = 'http://13.127.63.13:9010/api/';
+public authUrl = 'http://13.127.63.13:9010/api/auth/';
+public adminUrl = 'http://13.127.63.13:9010/api/';
+public webSocketUrl = 'http://13.127.63.13:9010';
   // public rootUrl = 'https://ozonemdmdev.ezeone.tech/ozonemdm/';
   // public upload = 'https://ozonemdmdev.ezeone.tech';
   // public baseUrl = 'https://mgvrz3tb-9006.inc1.devtunnels.ms/api/';
