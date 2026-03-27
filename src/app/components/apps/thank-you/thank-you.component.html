@@ -1,0 +1,31 @@
+<div
+  class="flex items-center justify-center min-h-[70vh] bg-gray-50 relative overflow-hidden"
+>
+  <div
+    class="bg-white shadow-lg rounded-2xl p-10 max-w-2xl w-full text-center relative z-10"
+  >
+    <div class="flex justify-center mb-6">
+      <div
+        class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center animate-bounce-slow"
+      >
+        <i class="ri-checkbox-circle-line text-6xl"></i>
+      </div>
+    </div>
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">
+      {{ header }}
+    </h1>
+
+    <p class="text-gray-600 text-lg leading-relaxed mb-4" [innerHTML]="msg"></p>
+  </div>
+
+  <i
+    class="ri-mail-send-line text-blue-400 text-3xl absolute animate-float-1"
+  ></i>
+  <i
+    class="ri-customer-service-2-line text-indigo-400 text-4xl absolute animate-float-2"
+  ></i>
+  <i
+    class="ri-file-list-3-line text-green-400 text-3xl absolute animate-float-3"
+  ></i>
+</div>

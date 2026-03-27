@@ -1,0 +1,474 @@
+<div class="box" *ngIf="skLoading">
+  <div class="p-4">
+    <div class="grid grid-cols-12 gap-x-6">
+      <div
+        class="xl:col-span-3 col-span-12 mb-4"
+        *ngFor="let card of [].constructor(10)"
+      >
+        <app-skeleton></app-skeleton>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="xl:col-span-12 col-span-12"
+  *ngIf="
+    areAllChecked && !basicDetail?.verified_info?.sales_support && !skLoading
+  "
+>
+  <app-showcode-card
+    [class]="'box-title font-bold text-[15px] block text-primary'"
+    [titleView]="false"
+  >
+    <div
+      class="w-full flex items-center"
+      [ngClass]="
+        basicDetail?.verified_info?.sales_support_remark
+          ? 'justify-between'
+          : 'justify-center'
+      "
+    >
+      <!-- Remark -->
+      <div
+        *ngIf="basicDetail?.verified_info?.sales_support_remark"
+        class="flex items-center text-left"
+      >
+        <div>
+          <span class="block font-medium text-danger">
+            {{ basicDetail?.verified_info?.sales_support_remark }}
+          </span>
+          <span class="text-textmuted dark:text-textmuted/50 text-xs">
+            Rejected Remark
+          </span>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="ti-btn ti-btn-success label-ti-btn label-end"
+          (click)="approveVerification()"
+        >
+          <i class="ri-thumb-up-line label-ti-btn-icon ms-2"></i>
+          Approved
+        </button>
+
+        <button
+          type="button"
+          class="ti-btn ti-btn-danger label-ti-btn label-end !rounded"
+          (click)="openModal('reject')"
+        >
+          <i class="ri-thumb-down-line label-ti-btn-icon ms-2 !rounded"></i>
+          Reject
+        </button>
+      </div>
+    </div>
+  </app-showcode-card>
+</div>
+
+<div class="grid grid-cols-12 sm:gap-x-6">
+  <!-- SALES SUPPORT -->
+  <div class="xl:col-span-6 col-span-12" *ngIf="section !== 'commercial'">
+    <form [formGroup]="salesSupportForm" *ngIf="!skLoading">
+      <app-showcode-card
+        [title]="'Sales Support'"
+        [class]="'box-title font-bold text-[15px] block text-primary'"
+        [boxHeader]="'pb-0'"
+        [titleView]="true"
+        [isCheckbox]="comanFuncation.IsCheckBoxAccess"
+        [checkboxLabel]="'Select'"
+        [readonly]="basicDetail?.verified_info?.sales_support"
+        [checkboxChecked]="checkedStates['salesSupportInfo']"
+        (checkboxChange)="onSectionCheckChange('salesSupportInfo', $event)"
+      >
+        <div class="grid grid-cols-12 gap-y-4 gap-x-4 mb-4" *ngIf="hasAccess">
+          <div class="xl:col-span-4 col-span-12">
+            <spk-ng-select
+              formControlName="sales_support_id"
+              label="Sales Support"
+              [fieldReq]="true"
+              [options]="salesSupportOptions"
+              [multiple]="false"
+              [search]="true"
+            >
+            </spk-ng-select>
+          </div>
+
+          <!-- Base Location -->
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input
+              label="Base Location"
+              formControlName="location_id"
+              class="remove-default-class"
+              [fieldReq]="true"
+              type="text"
+            ></spk-input>
+          </div>
+
+          <!-- Zone + Add -->
+          <div class="xl:col-span-5 col-span-12">
+            <div class="flex gap-3">
+              <spk-input
+                label="Zone"
+                formControlName="zone_id"
+                class="remove-default-class"
+                [fieldReq]="true"
+                type="text"
+              ></spk-input>
+
+              <app-icon-button
+                [icon]="
+                  isSalesSupportLoading
+                    ? 'ri-loader-line animate-spin'
+                    : 'ri-add-line'
+                "
+                [disabled]="isSalesSupportLoading"
+                [type]="'button'"
+                (clickEvent)="addSalesSupport()"
+                [buttonClass]="
+                  'ti-btn mt-7 ti-btn-icon ti-btn-primary btn-wave'
+                "
+              >
+              </app-icon-button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLE -->
+        <div *ngIf="salesSupportList.length">
+          <div class="table-responsive overflow-auto table-bordered-default">
+            <spk-reusable-tables
+              tableClass="ti-custom-table ti-custom-table-head ti-custom-table-hover ti-head-primary whitespace-nowrap"
+              [tableHead]="'border-b'"
+              [showS_No]="true"
+              [showAction]="isDelete"
+              [columns]="salesSupportColumns"
+            >
+              <ng-container>
+                <tr
+                  class="product-list border-b !border-defaultborder"
+                  *ngFor="let row of salesSupportList; let i = index"
+                >
+                  <td class="text-center">{{ i + 1 }}</td>
+
+                  <td>
+                    {{ row.sales_support_id?.name || "--" | titlecase }} -
+                    <strong>{{ row.sales_support_id?.user_code }}</strong>
+                  </td>
+
+                  <td>
+                    {{
+                      row.sales_support_id?.location_id?.option_name || "--"
+                        | titlecase
+                    }}
+                  </td>
+
+                  <td>
+                    {{
+                      row.sales_support_id?.zone_id?.option_name || "--"
+                        | titlecase
+                    }}
+                  </td>
+
+                  <td class="text-center" *ngIf="isDelete">
+                    <app-icon-button
+                      [icon]="
+                        row.isdelLoading
+                          ? 'ri-loader-line animate-spin'
+                          : 'ri-delete-bin-line'
+                      "
+                      [disabled]="row.isdelLoading"
+                      [type]="'button'"
+                      (clickEvent)="delete('sales support', row._id, row)"
+                      [buttonClass]="
+                        'ti-btn ti-btn-icon ti-btn-danger btn-wave'
+                      "
+                    >
+                    </app-icon-button>
+                  </td>
+                </tr>
+              </ng-container>
+            </spk-reusable-tables>
+          </div>
+        </div>
+      </app-showcode-card>
+    </form>
+  </div>
+
+  <!-- SALES PERSON -->
+  <div class="xl:col-span-6 col-span-12" *ngIf="section !== 'commercial'">
+    <form [formGroup]="salesPersonForm" *ngIf="!skLoading">
+      <app-showcode-card
+        [title]="'Sales Person'"
+        [class]="'box-title font-bold text-[15px] block text-primary'"
+        [boxHeader]="'pb-0'"
+        [titleView]="true"
+        [isCheckbox]="comanFuncation.IsCheckBoxAccess"
+        [checkboxLabel]="'Select'"
+        [readonly]="basicDetail?.verified_info?.sales_support"
+        [checkboxChecked]="checkedStates['salesPersonInfo']"
+        (checkboxChange)="onSectionCheckChange('salesPersonInfo', $event)"
+      >
+        <div class="flex items-center gap-2 mb-3" *ngIf="hasAccess">
+          <input
+            type="checkbox"
+            formControlName="is_hod_approval_mail"
+            class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+          />
+          <label class="text-sm font-medium text-gray-700 cursor-pointer">
+            HOD Approval?
+          </label>
+        </div>
+
+        <!-- INPUT GRID -->
+        <div class="grid grid-cols-12 gap-y-4 gap-x-4 mb-4" *ngIf="hasAccess">
+          <!-- Sales Person -->
+          <div class="xl:col-span-4 col-span-12">
+            <spk-ng-select
+              formControlName="sales_person_id"
+              label="Sales Person"
+              [fieldReq]="true"
+              [search]="true"
+              [options]="salesPersonOptions"
+              [multiple]="false"
+              [search]="true"
+            >
+            </spk-ng-select>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input
+              label="Base Location"
+              formControlName="location_id"
+              class="remove-default-class"
+              [fieldReq]="true"
+              type="text"
+            ></spk-input>
+          </div>
+
+          <!-- Zone + Add -->
+          <div class="xl:col-span-5 col-span-12">
+            <div class="flex gap-3">
+              <spk-input
+                label="Zone"
+                formControlName="zone_id"
+                class="remove-default-class"
+                [fieldReq]="true"
+                type="text"
+              ></spk-input>
+
+              <app-icon-button
+                [icon]="
+                  isSalesPersonLoading
+                    ? 'ri-loader-line animate-spin'
+                    : 'ri-add-line'
+                "
+                [disabled]="isSalesPersonLoading"
+                [type]="'button'"
+                (clickEvent)="addSalesPerson()"
+                [buttonClass]="
+                  'ti-btn mt-7 ti-btn-icon ti-btn-primary btn-wave'
+                "
+              >
+              </app-icon-button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLE -->
+        <div *ngIf="salesPersonList.length">
+          <div class="table-responsive overflow-auto table-bordered-default">
+            <spk-reusable-tables
+              tableClass="ti-custom-table ti-custom-table-head ti-custom-table-hover ti-head-primary whitespace-nowrap"
+              [tableHead]="'border-b'"
+              [showS_No]="true"
+              [showAction]="isDelete"
+              [columns]="salesPersonColumns"
+            >
+              <ng-container>
+                <tr
+                  class="product-list border-b !border-defaultborder"
+                  *ngFor="let row of salesPersonList; let i = index"
+                >
+                  <td class="text-center">{{ i + 1 }}</td>
+
+                  <td>
+                    {{ row.sales_person_id?.name || "--" | titlecase }}
+
+                    - <strong>{{ row.sales_person_id?.user_code }}</strong>
+                  </td>
+
+                  <td>
+                    {{
+                      row.sales_person_id?.location_id?.option_name || "--"
+                        | titlecase
+                    }}
+                  </td>
+
+                  <td>
+                    {{
+                      row.sales_person_id?.zone_id?.option_name || "--"
+                        | titlecase
+                    }}
+                  </td>
+
+                  <td class="text-center">
+                    <i
+                      class="material-icons ms-1"
+                      style="font-size: 22px !important"
+                      [ngClass]="
+                        row?.is_hod_approval_mail ? 'text-success' : ''
+                      "
+                    >
+                      {{ row?.is_hod_approval_mail ? "check_circle" : "close" }}
+                    </i>
+                  </td>
+
+                  <td class="text-center" *ngIf="isDelete">
+                    <app-icon-button
+                      [icon]="
+                        row.isdelLoading
+                          ? 'ri-loader-line animate-spin'
+                          : 'ri-delete-bin-line'
+                      "
+                      [disabled]="row.isdelLoading"
+                      [type]="'button'"
+                      (clickEvent)="delete('sales person', row._id, row)"
+                      [buttonClass]="
+                        'ti-btn ti-btn-icon ti-btn-danger btn-wave'
+                      "
+                    >
+                    </app-icon-button>
+                  </td>
+                </tr>
+              </ng-container>
+            </spk-reusable-tables>
+          </div>
+        </div>
+      </app-showcode-card>
+    </form>
+  </div>
+</div>
+
+<form
+  [formGroup]="commercialTermsForm"
+  (ngSubmit)="addCommercialTerms()"
+  *ngIf="!skLoading"
+>
+  <div class="grid grid-cols-12 sm:gap-x-6">
+    <div class="xl:col-span-12 col-span-12">
+      <app-showcode-card
+        [title]="'Commercial Terms'"
+        [class]="'box-title font-bold text-[15px] block text-primary'"
+        [boxHeader]="'pb-0'"
+        [titleView]="true"
+        [isCheckbox]="comanFuncation.IsCheckBoxAccess"
+        [checkboxLabel]="'Select'"
+        [readonly]="basicDetail?.verified_info?.sales_support"
+        [checkboxChecked]="checkedStates['commercialTermsInfo']"
+        (checkboxChange)="onSectionCheckChange('commercialTermsInfo', $event)"
+      >
+        <div class="grid grid-cols-12 gap-x-3 gap-y-2 mb-4 items-start">
+          <div class="xl:col-span-2 col-span-12">
+            <spk-ng-select
+              formControlName="business_segment_id"
+              label="Business Segment"
+              [fieldReq]="true"
+              [options]="segmentOptions"
+              [multiple]="false"
+              (selectedChange)="
+                onSelectChange($event, 'business_segment', segmentOptions)
+              "
+            >
+            </spk-ng-select>
+          </div>
+
+          <div class="xl:col-span-2 col-span-12">
+            <spk-ng-select
+              formControlName="customer_group_id"
+              label="Customer Group"
+              [fieldReq]="true"
+              [options]="customerGroupOptions"
+              [multiple]="false"
+              (selectedChange)="
+                onSelectChange($event, 'customer_group', customerGroupOptions)
+              "
+            >
+            </spk-ng-select>
+          </div>
+
+          <div class="xl:col-span-2 col-span-12">
+            <spk-ng-select
+              formControlName="discount_type_id"
+              label="Discount Type"
+              [fieldReq]="true"
+              [options]="discountTypeOptions"
+              [multiple]="false"
+              (selectedChange)="
+                onSelectChange($event, 'discount_type', discountTypeOptions)
+              "
+            >
+            </spk-ng-select>
+          </div>
+
+          <div class="xl:col-span-2 col-span-12">
+            <spk-ng-select
+              formControlName="payment_terms_id"
+              label="Payment Terms"
+              [fieldReq]="true"
+              [options]="paymentTermsOptions"
+              [multiple]="false"
+              (selectedChange)="
+                onSelectChange($event, 'payment_term', paymentTermsOptions)
+              "
+            >
+            </spk-ng-select>
+          </div>
+
+          <div class="xl:col-span-2 col-span-12">
+            <spk-input
+              label="Credit Limit"
+              formControlName="credit_limit"
+              [fieldReq]="true"
+              class="remove-default-class"
+              type="number"
+            >
+            </spk-input>
+          </div>
+
+          <div class="xl:col-span-2 col-span-12">
+            <spk-ng-select
+              formControlName="dms_account"
+              label="DMS Account"
+              [fieldReq]="true"
+              [options]="dmsAccountOption"
+              [multiple]="false"
+              (selectedChange)="
+                onSelectChange($event, 'dms_account', dmsAccountOption)
+              "
+            >
+            </spk-ng-select>
+          </div>
+
+          <div
+            class="col-span-12 flex justify-end pt-6"
+            *ngIf="hasAccountAccess"
+          >
+            <app-button
+              [buttonType]="'submit'"
+              [buttonClass]="'ti-btn ti-btn-primary m-0 items-end'"
+              [disabled]="api.disabled"
+              [label]="pageType === 'edit' ? 'Update' : 'Save'"
+              [formType]="'add'"
+              [iconClass]="
+                pageType === 'edit' ? 'ri-save-3-line' : 'ri-save-line'
+              "
+              [loadingIconClass]="'ri-loader-2-fill'"
+            ></app-button>
+          </div>
+        </div>
+      </app-showcode-card>
+    </div>
+  </div>
+</form>

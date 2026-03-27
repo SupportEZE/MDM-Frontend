@@ -1,0 +1,250 @@
+<div class="mat-dialoge">
+  <div class="ti-modal-header flex justify-between p-4">
+    <h6
+      class="modal-title text-[1rem] font-semibold text-gray-800 dark:text-gray-200"
+    >
+      {{ modalTitle }}
+    </h6>
+    <button
+      type="button"
+      matTooltip="Close"
+      class="hs-dropdown-toggle ti-modal-close-btn"
+      (click)="closeModal()"
+    >
+      <span class="sr-only">Close</span>
+      <svg
+        class="w-3.5 h-3.5"
+        width="8"
+        height="8"
+        viewBox="0 0 8 8"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0.258206 1.00652C0.351976 0.912791 0.479126 0.860131 0.611706 0.860131C0.744296 0.860131 0.871447 0.912791 0.965207 1.00652L3.61171 3.65302L6.25822 1.00652C6.30432 0.958771 6.35952 0.920671 6.42052 0.894471C6.48152 0.868271 6.54712 0.854471 6.61352 0.853901C6.67992 0.853321 6.74572 0.865971 6.80722 0.891111C6.86862 0.916251 6.92442 0.953381 6.97142 1.00032C7.01832 1.04727 7.05552 1.1031 7.08062 1.16454C7.10572 1.22599 7.11842 1.29183 7.11782 1.35822C7.11722 1.42461 7.10342 1.49022 7.07722 1.55122C7.05102 1.61222 7.01292 1.6674 6.96522 1.71352L4.31871 4.36002L6.96522 7.00648C7.05632 7.10078 7.10672 7.22708 7.10552 7.35818C7.10442 7.48928 7.05182 7.61468 6.95912 7.70738C6.86642 7.80018 6.74102 7.85268 6.60992 7.85388C6.47882 7.85498 6.35252 7.80458 6.25822 7.71348L3.61171 5.06702L0.965207 7.71348C0.870907 7.80458 0.744606 7.85498 0.613506 7.85388C0.482406 7.85268 0.357007 7.80018 0.264297 7.70738C0.171597 7.61468 0.119017 7.48928 0.117877 7.35818C0.116737 7.22708 0.167126 7.10078 0.258206 7.00648L2.90471 4.36002L0.258206 1.71352C0.164476 1.61976 0.111816 1.4926 0.111816 1.36002C0.111816 1.22744 0.164476 1.10028 0.258206 1.00652Z"
+          fill="currentColor"
+        />
+      </svg>
+    </button>
+  </div>
+</div>
+<div class="mat-dialoge">
+  <mat-dialog-content class="mat-typography" style="padding-top: 0px">
+    <div class="grid grid-cols-12 gap-x-6">
+      <div class="xxl:col-span-12 col-span-12">
+        <div class="tab-pane show">
+          <div *ngIf="skLoading">
+            <div class="p-4">
+              <div class="grid grid-cols-12 gap-x-6">
+                <div
+                  class="xl:col-span-12 col-span-12 mb-4"
+                  *ngFor="let card of [].constructor(3)"
+                >
+                  <app-skeleton></app-skeleton>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="accordion accordion-customicon1 accordion-primary accordions-items-seperate"
+            id="accordionFAQ1"
+            *ngIf="!skLoading"
+          >
+            <div
+              class="hs-accordion-group"
+              *ngFor="let row of dropDown; let i = index"
+            >
+              <div
+                class="hs-accordion bg-white dark:bg-bodybg border dark:border-defaultborder/10 border-defaultborder mt-[0.5rem] rounded-sm active"
+                id="faq-one"
+              >
+                <button
+                  type="button"
+                  class="dark:border-defaultborder/10 justify-between inline-flex items-center w-full font-semibold text-start text-[0.85rem] transition py-3 px-4 dark:text-gray-200 dark:hover:text-white/80"
+                  [ngClass]="{
+                    'hs-accordion-toggle hs-accordion-active:!text-primary hs-accordion-active:border hs-accordion-active:border-transparent hs-accordion-active:bg-primary/10   dark:hs-accordion-active:!text-primary dark:hs-accordion-active:border ':
+                      openIndex === i,
+                  }"
+                  aria-controls="faq-collapse-one"
+                  (click)="
+                    toggleCollapse(i);
+                    getOptions(row._id);
+                    row.dependent_dropdown_id
+                      ? getDependentOptions(row.dependent_dropdown_id)
+                      : ''
+                  "
+                >
+                  {{
+                    row.dropdown_display_name
+                      ? (row.dropdown_display_name | titlecase)
+                      : ""
+                  }}
+                  <div class="flex items-center gap-1">
+                    <svg
+                      class="hs-accordion-active:hidden hs-accordion-active:!text-primary hs-accordion-active:!bg-primary hs-accordion-active:group-hover:!text-primary block sm:w-[1.25rem] h-[1.25rem] w-[2.25rem] ms-2 p-[3px] rounded-full text-gray-600 bg-light group-hover:text-defaulttextcolor dark:text-defaulttextcolor/80"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M1.5 8.85999L14.5 8.85998"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                      ></path>
+                      <path
+                        d="M8 15.36L8 2.35999"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                      ></path>
+                    </svg>
+                    <svg
+                      class="hs-accordion-active:block hs-accordion-active:!text-white hs-accordion-active:!bg-primary hs-accordion-active:group-hover:!text-primary hidden sm:w-[1.25rem] h-[1.25rem] w-[2.25rem] ms-2 p-[3px] rounded-full text-gray-600 bg-light group-hover:text-defaulttextcolor dark:text-defaulttextcolor/80"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M1.5 8.85999L14.5 8.85998"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                      ></path>
+                    </svg>
+                  </div>
+                </button>
+
+                <div
+                  id="faq-collapse-one"
+                  class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300"
+                  aria-labelledby="faq-one"
+                  [ngStyle]="{ display: openIndex === i ? 'block' : 'none' }"
+                >
+                  <div class="p-5">
+                    <mat-progress-bar
+                      mode="indeterminate"
+                      style="margin: -8px 0px 10px 0px"
+                      *ngIf="optionLoading"
+                    ></mat-progress-bar>
+                    <ul class="ti-list-group !border-0">
+                      <li>
+                        <div
+                          class="xxl:col-span-3 xl:col-span-12 lg:col-span-12 md:col-span-6 col-span-12"
+                        >
+                          <div class="flex gap-3">
+                            <div
+                              class="wp100"
+                              *ngIf="row.dependent_dropdown_name"
+                            >
+                              <mat-form-field class="mat-custom-field">
+                                <mat-select
+                                  name="parent_field_value"
+                                  placeholder="Select an option *"
+                                  #parent_field_value="ngModel"
+                                  name="dependent_value_option"
+                                  [(ngModel)]="data.dependent_value_option"
+                                >
+                                  <ng-container
+                                    *ngFor="let row of dropDownDependentValue"
+                                  >
+                                    <mat-option value="{{ row.option_name }}">{{
+                                      row.label ? row.label : "---"
+                                    }}</mat-option>
+                                  </ng-container>
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+
+                            <div class="wp100">
+                              <mat-form-field class="mat-custom-field">
+                                <input
+                                  matInput
+                                  placeholder="Add New Option *"
+                                  name="dropdown_option"
+                                  [(ngModel)]="data.dropdown_option"
+                                />
+                              </mat-form-field>
+                            </div>
+
+                            <div class="wp100">
+                              <mat-form-field class="mat-custom-field">
+                                <input
+                                  matInput
+                                  placeholder="Value"
+                                  name="dropdown_value"
+                                  [(ngModel)]="data.dropdown_value"
+                                />
+                              </mat-form-field>
+                            </div>
+
+                            <button
+                              class="ti-btn ti-btn-icon ti-btn-primary btn-wave m-0"
+                              (click)="
+                                submitOption(
+                                  row._id,
+                                  row.dropdown_name,
+                                  dropDownDependentValue.length
+                                )
+                              "
+                              [disabled]="btnDisabled"
+                              matTooltip="Add New Option"
+                            >
+                              <i class="ri-add-line"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+
+                      <li
+                        class="!border-b"
+                        *ngFor="let option of dropDownValue; let i = index"
+                      >
+                        <div class="flex items-center flex-wrap gap-2">
+                          <div class="flex-auto">
+                            <span class="block font-bold capitalize">
+                              {{ i + 1 }}. {{ option.option_name }}
+                              <ng-container
+                                *ngIf="
+                                  option.value &&
+                                  option.value !== option.option_name
+                                "
+                              >
+                                ({{ option.value }})
+                              </ng-container>
+                            </span>
+                          </div>
+
+                          <div class="btn-list">
+                            <button
+                              class="ti-btn btn-wave product-btn ti-btn-sm ti-btn-soft-danger waves-effect waves-light m-0 mt-1 mb-1"
+                              (click)="
+                                delete(row._id, option._id, option.option_name)
+                              "
+                              [disabled]="deletingMap[option._id]"
+                              matTooltip="Delete"
+                            >
+                              <i class="ri-delete-bin-line"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-container *ngIf="!dropDown.length && !skLoading">
+            <app-data-not-found></app-data-not-found>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+</div>

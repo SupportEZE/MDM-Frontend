@@ -1,0 +1,171 @@
+name: Build & Deploy (Repo Driven)
+
+on:
+  workflow_dispatch:
+    inputs:
+      action_type:
+        description: "Choose action"
+        required: true
+        type: choice
+        options:
+          - deploy
+          - scan
+
+# -------------------------------------------------------
+# 🧠 Detect Environment
+# -------------------------------------------------------
+jobs:
+  detect-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      env_type: ${{ steps.env.outputs.env_type }}
+    steps:
+      - name: Detect environment
+        id: env
+        run: |
+          BRANCH="${GITHUB_REF##*/}"
+
+          if [[ "$BRANCH" == "main" ]]; then
+            echo "env_type=production" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH" == "pre-release" || "$BRANCH" == "release/pre-release" ]]; then
+            echo "env_type=development" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Unsupported branch"
+            exit 1
+          fi
+
+# -------------------------------------------------------
+# 🚀 DEV DEPLOY
+# -------------------------------------------------------
+  dev-deploy:
+    needs: detect-environment
+    if: ${{ needs.detect-environment.outputs.env_type == 'development' && github.event.inputs.action_type == 'deploy' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove macOS-only Rollup deps
+        run: |
+          jq 'del(.dependencies["@rollup/rollup-darwin-arm64"])' package.json > tmp && mv tmp package.json
+          sed -i '/"@rollup\/rollup-darwin-arm64"/,+5d' package-lock.json || true
+
+      - name: Install base dependencies
+        run: |
+          npm install --legacy-peer-deps
+
+      - name: Install missing project dependencies (IMPORTANT)
+        run: |
+          npm install sortablejs flatpickr apexcharts filepond luxon overlayscrollbars
+          npm install -D @types/sortablejs @types/flatpickr @types/luxon || true
+
+      - name: Build (DEV)
+        run: |
+          npm run build -- --output-path=preview
+
+      - name: Zip build
+        run: zip -r build.zip preview/
+
+      - name: Upload build to DEV
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 13.127.63.13
+          username: ubuntu
+          key: ${{ secrets.SSH_DEV_KEY }}
+          source: build.zip
+          target: /opt/frontend
+
+      - name: Deploy on DEV
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: 13.127.63.13
+          username: ubuntu
+          key: ${{ secrets.SSH_DEV_KEY }}
+          script: |
+            TARGET="/var/www/html/ozonemdm"
+            BACKUP="/opt/frontend/ozonemdm_backup"
+
+            mkdir -p "$TARGET" "$BACKUP"
+
+            echo "📦 Backup existing build"
+            rm -rf "$BACKUP"/*
+            cp -r "$TARGET"/* "$BACKUP"/ || true
+
+            echo "🧹 Clean old assets"
+            rm -rf "$TARGET"/*
+
+            echo "🚀 Deploy new build"
+            cd /opt/frontend
+            unzip -o build.zip
+            cp -r preview/browser/. "$TARGET"/
+
+            echo "✅ DEV deployed"
+
+# -------------------------------------------------------
+# 🚀 PROD DEPLOY
+# -------------------------------------------------------
+  prod-deploy:
+    needs: detect-environment
+    if: ${{ needs.detect-environment.outputs.env_type == 'production' && github.event.inputs.action_type == 'deploy' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove macOS-only Rollup deps
+        run: |
+          jq 'del(.dependencies["@rollup/rollup-darwin-arm64"])' package.json > tmp && mv tmp package.json
+          sed -i '/"@rollup\/rollup-darwin-arm64"/,+5d' package-lock.json || true
+
+      - name: Install base dependencies
+        run: |
+          npm install --legacy-peer-deps
+
+      - name: Install missing project dependencies
+        run: |
+          npm install sortablejs flatpickr apexcharts filepond luxon overlayscrollbars
+          npm install -D @types/sortablejs @types/flatpickr @types/luxon || true
+
+      - name: Build (PROD)
+        run: |
+          npm run build -- --output-path=preview
+
+      - name: Zip build
+        run: zip -r build.zip preview/
+
+      - name: Upload build to PROD
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 13.204.167.142
+          port: 5511
+          username: ec2-user
+          key: ${{ secrets.SSH_PROD_KEY }}
+          source: build.zip
+          target: /opt/frontend
+
+      - name: Deploy on PROD
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: 13.204.167.142
+          port: 5511
+          username: ec2-user
+          key: ${{ secrets.SSH_PROD_KEY }}
+          script: |
+            TARGET="/var/www/html/ozonemdm"
+            BACKUP="/opt/frontend/ozonemdm_prod_backup"
+
+            mkdir -p "$TARGET" "$BACKUP"
+
+            echo "📦 Backup existing build"
+            rm -rf "$BACKUP"/*
+            cp -r "$TARGET"/* "$BACKUP"/ || true
+
+            echo "🧹 Clean old assets"
+            rm -rf "$TARGET"/*
+
+            echo "🚀 Deploy new build"
+            cd /opt/frontend
+            unzip -o build.zip
+            cp -r preview/browser/. "$TARGET"/
+
+            echo "✅ PROD deployed"

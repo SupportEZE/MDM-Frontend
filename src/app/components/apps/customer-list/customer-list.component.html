@@ -1,0 +1,167 @@
+<app-page-header [title]="'Business Partner'" [title1]="['Business Partner']" [activeitem]="'Business Partner List'"
+  *ngIf="pageHeader"></app-page-header>
+
+<div class="box py-3 px-4">
+  <nav class="sm:flex sm:space-x-2 sm:rtl:space-x-reverse gap-1" aria-label="Tabs" role="tablist">
+    <app-listing-tab *ngFor="let tab of mainTabs" [tabs]="[{ name: tab?.name, label: tab?.label }]"
+      [activeTab]="activeTab" [countShow]="false" [iconShow]="false"
+      (tabChange)="onTabChange($event.tab)"></app-listing-tab>
+  </nav>
+
+  <div class="row">
+    <div class="col-xl-12">
+      <app-page-sub-header [pageTitle]="'Business Partner List'" [listLength]="listing.length" [btnShow]="true"
+        [refreshLabel]="'Refresh'" (onRefresh)="onRefresh()" [class]="'p-0 pt-3'">
+        ></app-page-sub-header>
+      <div class="table-responsive overflow-auto table-bordered-default">
+        <spk-reusable-tables
+          tableClass="ti-custom-table ti-custom-table-head ti-custom-table-hover ti-head-primary whitespace-nowrap"
+          [tableHead]="'border-b'" [showS_No]="true" [showCheckbox]="false" [columns]="getColumns()">
+          <ng-container *ngIf="!skLoading">
+            <tr class="border-b !border-defaultborder dark:!border-defaultborder/10">
+              <td>&nbsp;</td>
+
+              <td>
+                <div class="table-search-filters">
+                  <mat-form-field class="table-input">
+                    <input matInput [matDatepicker]="picker" [(ngModel)]="filter.created_at" name="createdAt"
+                      placeholder="Date Created" (ngModelChange)="onDateChange('created_at', $event)" />
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                  </mat-form-field>
+                </div>
+              </td>
+
+              <td>
+                <div class="table-search-filters">
+                  <mat-form-field class="table-input">
+                    <input matInput type="text" [(ngModel)]="filter.gst_number" placeholder="Search..."
+                      (keyup.enter)="getList()" />
+                    @if (filter.gst_number) {
+                    <button matSuffix mat-icon-button aria-label="Clear" (click)="filter.gst_number = ''; getList()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                    }
+                  </mat-form-field>
+                </div>
+              </td>
+
+              <td>
+                <div class="table-search-filters">
+                  <mat-form-field class="table-input">
+                    <input matInput type="text" [(ngModel)]="filter.company_name" placeholder="Search..."
+                      (keyup.enter)="getList()" />
+                    @if (filter.company_name) {
+                    <button matSuffix mat-icon-button aria-label="Clear" (click)="filter.company_name = ''; getList()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                    }
+                  </mat-form-field>
+                </div>
+              </td>
+
+              <td>
+                <div class="table-search-filters">
+                  <mat-form-field class="table-input">
+                    <input matInput type="text" [(ngModel)]="filter.company_type" placeholder="Search..."
+                      (keyup.enter)="getList()" />
+                    @if (filter.company_type) {
+                    <button matSuffix mat-icon-button aria-label="Clear" (click)="filter.company_type = ''; getList()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                    }
+                  </mat-form-field>
+                </div>
+              </td>
+
+              <td>
+                <div class="table-search-filters">
+                  <mat-form-field class="table-input">
+                    <input matInput type="text" [(ngModel)]="filter.bill_to_state" placeholder="Search..."
+                      (keyup.enter)="getList()" />
+                    @if (filter.bill_to_state) {
+                    <button matSuffix mat-icon-button aria-label="Clear"
+                      (click)="filter.bill_to_state = ''; getList()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                    }
+                  </mat-form-field>
+                </div>
+              </td>
+
+              <td>
+                <div class="table-search-filters">
+                  <mat-form-field class="table-input">
+                    <input matInput type="text" [(ngModel)]="filter.contact_person_name" placeholder="Search..."
+                      (keyup.enter)="getList()" />
+                    @if (filter.contact_person_name) {
+                    <button matSuffix mat-icon-button aria-label="Clear"
+                      (click)="filter.contact_person_name = ''; getList()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                    }
+                  </mat-form-field>
+                </div>
+              </td>
+
+              <td>
+                <div class="table-search-filters">
+                  <mat-form-field class="table-input">
+                    <input matInput type="text" [(ngModel)]="filter.contact_person_mobile" placeholder="Search..."
+                      (keyup.enter)="getList()" />
+                    @if (filter.contact_person_mobile) {
+                    <button matSuffix mat-icon-button aria-label="Clear"
+                      (click)="filter.contact_person_mobiler = ''; getList()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                    }
+                  </mat-form-field>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+
+          <tr class="product-list border-b !border-defaultborder dark:!border-defaultborder/10"
+            *ngFor="let row of listing; let i = index">
+            <td class="!text-center">{{ i + 1 }}</td>
+            <td>
+              {{
+              row?.created_at
+              ? (row?.created_at | date: "d MMM yyyy, hh:mm a")
+              : "--"
+              }}
+            </td>
+            <td>{{ row?.gst_number || "--" }}</td>
+            <td>
+              <a class="text-primary font-semibold underline" (click)="goToDetailPage(row?._id)">{{ row?.company_name ||
+                "--" }}</a>
+            </td>
+            <td>{{ row.company_type || "--" }}</td>
+            <td>{{ row?.bill_to_state || "--" }}</td>
+            <td>{{ row?.contact_person_name || "--" }}</td>
+            <td>{{ row?.contact_person_mobile || "--" }}</td>
+          </tr>
+          <!-- //--skeleton--// -->
+          <ng-container *ngIf="skLoading">
+            <tr class="border-b !border-defaultborder dark:!border-defaultborder/10"
+              *ngFor="let row of [].constructor(7)">
+              <td *ngFor="let row of [].constructor(8)">
+                <app-skeleton [class]="'h20 bg-skeleton'"></app-skeleton>
+              </td>
+            </tr>
+          </ng-container>
+          <!-- //--skeleton--// -->
+        </spk-reusable-tables>
+        <ng-container *ngIf="!listing.length && !skLoading">
+          <app-data-not-found></app-data-not-found>
+        </ng-container>
+      </div>
+
+      <app-pagination-footer [currentPage]="pagination.cur_page" [totalPage]="pagination.total_pages"
+        [pageLimit]="pagination.limit" [listLength]="listing.length" [preBtn]="!pagination.prev"
+        [nextBtn]="!pagination.next" (preButtonClick)="changeToPagination('Previous')"
+        (nextButtonClick)="changeToPagination('Next')" (pageChange)="changeToPage($event)"></app-pagination-footer>
+    </div>
+  </div>
+</div>
+<!--End::row-1 -->

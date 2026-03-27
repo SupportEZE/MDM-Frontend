@@ -1,0 +1,58 @@
+@keyframes bounce-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 1.5s infinite;
+}
+
+/* Floating up OUTSIDE content */
+@keyframes float-up {
+  0% {
+    bottom: -10%;
+    opacity: 0;
+    transform: translateY(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    bottom: 110%;
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+}
+
+.animate-float-1 {
+  animation: float-up 10s ease-in-out infinite;
+  left: 25;
+}
+.animate-float-2 {
+  animation: float-up 12s ease-in-out infinite 3s;
+  left: 60;
+}
+.animate-float-3 {
+  animation: float-up 14s ease-in-out infinite 6s;
+  left: 40;
+}
+
+.oz-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  // background: #124479;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}

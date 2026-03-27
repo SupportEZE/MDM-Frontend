@@ -1,0 +1,465 @@
+<app-page-header [title]="'Business Partner'" [title1]="['Business Partner']"
+  [activeitem]="'Business Partner Registration'"></app-page-header>
+
+<div class="box" *ngIf="skLoading">
+  <div class="p-4">
+    <div class="grid grid-cols-12 gap-x-6">
+      <div class="xl:col-span-3 col-span-12 mb-4" *ngFor="let card of [].constructor(10)">
+        <app-skeleton></app-skeleton>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="xl:col-span-12 col-span-12">
+  <form [formGroup]="verifyForm" (ngSubmit)="verifyGST()" *ngIf="!gstVerified">
+    <!-- Company Detail START -->
+    <app-showcode-card [title]="'COMPANY DETAIL'" [class]="'box-title font-bold text-[15px] block text-primary'"
+      [boxHeader]="'pb-0'" [titleView]="false">
+      <div class="grid grid-cols-12 sm:gap-x-6 gap-x-3 gap-y-3">
+        <div class="xl:col-span-2 col-span-12">
+          <spk-input label="GSTIN" formControlName="gst_number" [fieldReq]="true" class="remove-default-class"
+            type="text" [maxlength]="15"></spk-input>
+        </div>
+        <div class="xl:col-span-2 col-span-12">
+          <app-button [buttonType]="'submit'" [buttonClass]="'ti-btn ti-btn-primary m-0 mt-7'" [label]="'Verify GST'"
+            [disabled]="api.disabled" [formType]="pageType" [iconClass]="'ri-check-line'"
+            [loadingIconClass]="'ri-loader-2-fill'"></app-button>
+        </div>
+      </div>
+    </app-showcode-card>
+  </form>
+
+  <ng-container *ngIf="gstVerified">
+    <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
+      <!-- Company Detail START -->
+      <app-showcode-card [title]="'Company Detail'" [class]="'box-title font-bold text-[15px] block text-primary'"
+        [boxHeader]="'pb-0'" [titleView]="true">
+        <div class="grid grid-cols-12 sm:gap-x-6 gap-x-3 gap-y-3">
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="GSTIN" formControlName="gst_number" [fieldReq]="true" class="remove-default-class"
+              type="text" [maxlength]="15"></spk-input>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Company Name" formControlName="company_name" [fieldReq]="true"
+              class="remove-default-class" type="text"></spk-input>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Legal Name" formControlName="legal_name" [fieldReq]="false" class="remove-default-class"
+              type="text"></spk-input>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <label class="form-label mb-0">
+              Company Logo <span class="text-red-500">*</span>
+            </label>
+
+            <file-pond class="filepond basic-filepond" [options]="getPondOptions()" [files]="pondFiles['company_logo']"
+              (onremovefile)="onFileRemove($event, 1, 'company_logo')"
+              (onprocessfile)="onFileProcessed($event, 'upload', 1, 'company_logo')">
+            </file-pond>
+
+            <div *ngIf="
+  invoiceForm.get('company_logo')?.invalid &&
+  (invoiceForm.get('company_logo')?.touched || submitted)
+" class="text-red-500 text-xs mt-1">
+              Company Logo is required.
+            </div>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Contact Number" formControlName="mobile" [fieldReq]="true" class="remove-default-class"
+              type="text" (keypress)="formValidation.handleInputFilter($event, 'mobile')"></spk-input>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Email" formControlName="email" [fieldReq]="true" class="remove-default-class"
+              type="email"></spk-input>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Website" formControlName="website_url" [fieldReq]="false" class="remove-default-class"
+              type="text"></spk-input>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <label class="form-label mb-0">Company Picture</label>
+            <file-pond class="filepond basic-filepond" [options]="getPondOptions()"
+              [files]="pondFiles['company_picture']" (onremovefile)="onFileRemove($event, 1, 'company_picture')"
+              (onprocessfile)="
+                onFileProcessed($event, 'upload', 1, 'company_picture')
+              "></file-pond>
+          </div>
+        </div>
+      </app-showcode-card>
+      <!-- Company Detail END -->
+
+      <!-- Tax Detail START -->
+      <app-showcode-card [title]="'Tax Detail'" [class]="'box-title font-bold text-[15px] block text-primary'"
+        [boxHeader]="'pb-0'" [titleView]="true">
+        <div class="grid grid-cols-12 sm:gap-x-6 gap-x-3 gap-y-3">
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="GSTIN" formControlName="tax_gst_number" [fieldReq]="true" class="remove-default-class"
+              type="text"></spk-input>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-ng-select formControlName="gst_type_id" label="GST Type" [options]="gstTypeOptions" [fieldReq]="true"
+              (selectedChange)="onSingleSelectChange($event)">
+            </spk-ng-select>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Company Type" formControlName="company_type" [fieldReq]="true"
+              class="remove-default-class" type="text"></spk-input>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+
+            <label class="form-label mb-0">
+              Upload GST Certificate
+              <span class="text-danger">*</span>
+            </label>
+
+            <file-pond class="filepond basic-filepond" [options]="getPondOptions()"
+              [files]="pondFiles['gst_certificate']" (onremovefile)="onFileRemove($event, 1, 'gst_certificate')"
+              (onprocessfile)="onFileProcessed($event, 'upload', 1, 'gst_certificate')">
+            </file-pond>
+
+
+            <div class="text-red-500 text-xs mt-1" *ngIf="
+      invoiceForm.get('gst_certificate')?.invalid &&
+      (invoiceForm.get('gst_certificate')?.touched || submitted)
+    ">
+              GST Certificate is required
+            </div>
+
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Nature of Business" formControlName="nature_of_business" [fieldReq]="true"
+              class="remove-default-class" type="text"></spk-input>
+          </div>
+
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Assessee" formControlName="access_type" [fieldReq]="true" class="remove-default-class"
+              type="text"></spk-input>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="PAN No" formControlName="pan_number" [fieldReq]="true" class="remove-default-class"
+              type="text"></spk-input>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <label class="form-label mb-0">
+              Upload Pancard
+              <span class="text-danger">*</span>
+            </label>
+            <file-pond class="filepond basic-filepond" [options]="getPondOptions()" [files]="pondFiles['pancard']"
+              (onremovefile)="onFileRemove($event, 1, 'pancard')"
+              (onprocessfile)="onFileProcessed($event, 'upload', 1, 'pancard')"></file-pond>
+
+            <div class="text-red-500 text-xs mt-1" *ngIf="
+      invoiceForm.get('pancard')?.invalid &&
+      (invoiceForm.get('pancard')?.touched || submitted)
+    ">
+              Pancard is required
+            </div>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="CIN Number" formControlName="cin_number" class="remove-default-class"
+              type="text"></spk-input>
+          </div>
+
+          <!-- MSME YES/NO -->
+          <div class="xl:col-span-3 col-span-12">
+            <spk-ng-select formControlName="is_msme_udyam" label="Udyam/MSME Registration" [fieldReq]="true"
+              [options]="msmeRegistrationOptions">
+            </spk-ng-select>
+          </div>
+
+          <!-- MSME NUMBER (YES) -->
+          <div class="xl:col-span-3 col-span-12" *ngIf="invoiceForm.get('is_msme_udyam')?.value === true">
+            <spk-input label="Udyam/MSME Registration No" formControlName="msme_udyam_number" [fieldReq]="true"
+              class="remove-default-class" type="text">
+            </spk-input>
+          </div>
+
+          <!-- MSME FILE (NO) -->
+          <div class="xl:col-span-3 col-span-12" *ngIf="invoiceForm.get('is_msme_udyam')?.value === false">
+            <!-- <label class="form-label mb-0">Download MSME Document</label> -->
+
+            <!-- Download template -->
+            <button type="button" class="ti-btn ti-btn-primary-full label-ti-btn text-white bg-blue-700 mt-7"
+              (click)="downloadUndertaking()" title="Download Sample">
+              <i class="ri-download-line label-ti-btn-icon me-2"></i>
+              Download Sample
+            </button>
+          </div>
+
+          <div class="xl:col-span-3 col-span-12">
+
+            <label class="form-label mb-0">
+              Upload Udyam/MSME Certificate
+              <span class="text-danger" *ngIf="invoiceForm.get('is_msme_udyam')?.value === true">
+                *
+              </span>
+            </label>
+
+            <file-pond class="filepond basic-filepond" [options]="getPondOptions()"
+              [files]="pondFiles['msme_udyam_certificate']"
+              (onremovefile)="onFileRemove($event, 1, 'msme_udyam_certificate')"
+              (onprocessfile)="onFileProcessed($event, 'upload', 1, 'msme_udyam_certificate')">
+            </file-pond>
+
+            <!-- ERROR -->
+            <div class="text-red-500 text-xs mt-1" *ngIf="
+      invoiceForm.get('msme_udyam_certificate')?.invalid &&
+      (invoiceForm.get('msme_udyam_certificate')?.touched || submitted)
+    ">
+              MSME Certificate is required
+            </div>
+
+          </div>
+
+        </div>
+      </app-showcode-card>
+      <!-- Tax Detail END -->
+
+      <!-- Bill To - ADDRESS DETAIL START -->
+      <div class="grid grid-cols-12 sm:gap-x-6">
+        <div class="xl:col-span-6 col-span-12">
+          <app-showcode-card [title]="'Bill To'" [class]="'box-title font-bold text-[15px] block text-primary'"
+            [boxHeader]="'pb-0'" [titleView]="true">
+            <div class="grid grid-cols-12 sm:gap-x-6 gap-x-3 gap-y-3">
+              <div class="xl:col-span-6 col-span-12">
+                <spk-input label="Address" formControlName="bill_to_address" [fieldReq]="true"
+                  class="remove-default-class" type="text"></spk-input>
+              </div>
+
+              <div class="xl:col-span-6 col-span-12">
+                <spk-input label="Block" formControlName="bill_to_block" [fieldReq]="false" class="remove-default-class"
+                  type="text"></spk-input>
+              </div>
+
+              <div class="xl:col-span-6 col-span-12">
+                <spk-input label="City" formControlName="bill_to_city" [fieldReq]="true" class="remove-default-class"
+                  type="text"></spk-input>
+              </div>
+
+              <div class="xl:col-span-6 col-span-12">
+                <spk-input label="State" formControlName="bill_to_state" [fieldReq]="true" class="remove-default-class"
+                  type="text"></spk-input>
+              </div>
+
+              <div class="xl:col-span-6 col-span-12">
+                <spk-input label="Pincode" formControlName="bill_to_pincode" [fieldReq]="true"
+                  class="remove-default-class" type="text" (keypress)="formValidation.handleInputFilter($event)"
+                  (input)="onPincodeInput($event, 'bill_to_pincode')">
+                </spk-input>
+              </div>
+            </div>
+          </app-showcode-card>
+          <!-- Bill To - ADDRESS DETAIL END -->
+        </div>
+
+        <div class="xl:col-span-6 col-span-12">
+          <!-- Ship To - ADDRESS DETAIL -->
+          <div class="box">
+            <div class="box-header justify-between pb-0 relative">
+              <div class="block box-title font-bold text-[15px] text-primary">
+                Ship To
+              </div>
+
+              <mat-checkbox class="top-right-check-box" formControlName="is_both_address_same"
+                (change)="copyBillingInfo($event)">
+                Same as Bill To
+              </mat-checkbox>
+            </div>
+            <div class="box-body">
+              <div class="grid grid-cols-12 sm:gap-x-6 gap-x-3 gap-y-3">
+                <div class="xl:col-span-6 col-span-12">
+                  <spk-input label="Address" formControlName="ship_to_address" [fieldReq]="true"
+                    class="remove-default-class" type="text"></spk-input>
+                </div>
+
+                <div class="xl:col-span-6 col-span-12">
+                  <spk-input label="Block" formControlName="ship_to_block" [fieldReq]="false"
+                    class="remove-default-class" type="text"></spk-input>
+                </div>
+
+                <div class="xl:col-span-6 col-span-12">
+                  <spk-input label="City" formControlName="ship_to_city" [fieldReq]="true" class="remove-default-class"
+                    type="text"></spk-input>
+                </div>
+
+                <div class="xl:col-span-6 col-span-12">
+                  <spk-input label="State" formControlName="ship_to_state" [fieldReq]="true"
+                    class="remove-default-class" type="text"></spk-input>
+                </div>
+
+                <div class="xl:col-span-6 col-span-12">
+                  <spk-input label="Pincode" formControlName="ship_to_pincode" [fieldReq]="true"
+                    class="remove-default-class" type="text"
+                    (input)="onPincodeInput($event, 'ship_to_pincode')"></spk-input>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ship To - ADDRESS DETAIL END -->
+        </div>
+      </div>
+
+      <!-- Bank Detail START -->
+      <app-showcode-card [title]="'Bank Detail'" [class]="'box-title font-bold text-[15px] block text-primary'"
+        [boxHeader]="'pb-0'" [titleView]="true">
+        <div class="grid grid-cols-12 sm:gap-x-6 gap-x-3 gap-y-3">
+          <div class="xl:col-span-2 col-span-12">
+            <spk-input label="Account Number" formControlName="bank_account_number" [fieldReq]="true"
+              class="remove-default-class" type="text"></spk-input>
+          </div>
+
+          <div class="xl:col-span-2 col-span-12">
+            <spk-input label="IFSC Code" formControlName="bank_ifsc_code" [fieldReq]="true" class="remove-default-class"
+              type="text"></spk-input>
+          </div>
+          <div class="xl:col-span-2 col-span-12" *ngIf="!isAccountVerify && pageType === 'add'">
+            <app-button [label]="'Verify Bank Details'" [buttonType]="'button'"
+              [buttonClass]="'ti-btn ti-btn-primary m-0 mt-7'" [disabled]="accountVerify" [formType]="pageType"
+              [iconClass]="'ri-check-line'" [loadingIconClass]="'ri-loader-2-fill'"
+              (buttonClick)="verifyBankDetails()"></app-button>
+          </div>
+
+          <ng-container *ngIf="isAccountVerify">
+            <div class="xl:col-span-2 col-span-12">
+              <spk-input label="Account Name" formControlName="account_name" [fieldReq]="true"
+                class="remove-default-class" type="text"></spk-input>
+            </div>
+
+            <div class="xl:col-span-2 col-span-12">
+              <spk-input label="Bank Name" formControlName="bank_name" [fieldReq]="true" class="remove-default-class"
+                type="text"></spk-input>
+            </div>
+
+            <div class="xl:col-span-2 col-span-12">
+              <spk-input label="Branch Name" formControlName="bank_branch_name" [fieldReq]="false"
+                class="remove-default-class" type="text"></spk-input>
+            </div>
+
+            <div class="xl:col-span-2 col-span-12">
+              <label class="form-label mb-0">Upload Security Cheque</label>
+              <file-pond class="filepond basic-filepond" [options]="getPondOptions()"
+                [files]="pondFiles['security_cheque']" (onremovefile)="onFileRemove($event, 1, 'security_cheque')"
+                (onprocessfile)="
+                  onFileProcessed($event, 'upload', 1, 'security_cheque')
+                "></file-pond>
+            </div>
+          </ng-container>
+        </div>
+      </app-showcode-card>
+      <!-- BANK DETAIL END -->
+
+      <!-- Contact Detail START -->
+      <app-showcode-card [title]="'Contact Detail'" [class]="'box-title font-bold text-[15px] block text-primary'"
+        [boxHeader]="'pb-0'" [titleView]="true">
+        <div class="grid grid-cols-12 sm:gap-x-6 gap-x-3 gap-y-3">
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Contact Person Name" formControlName="contact_person_name" [fieldReq]="true"
+              class="remove-default-class" type="text"></spk-input>
+          </div>
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Designation" formControlName="contact_person_designation" [fieldReq]="true"
+              class="remove-default-class" type="text"></spk-input>
+          </div>
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Contact Number" formControlName="contact_person_mobile" [fieldReq]="true"
+              class="remove-default-class" type="text" (keypress)="
+                formValidation.handleInputFilter(
+                  $event,
+                  'contact_person_mobile'
+                )
+              "></spk-input>
+          </div>
+          <div class="xl:col-span-3 col-span-12">
+            <spk-input label="Email" formControlName="contact_person_email" [fieldReq]="true"
+              class="remove-default-class" type="email"></spk-input>
+          </div>
+        </div>
+      </app-showcode-card>
+      <!-- Contact Detail END -->
+
+      <!-- Submission START -->
+      <app-showcode-card [title]="'Compliance Document'" [class]="'box-title font-bold text-[15px] block text-primary'"
+        [boxHeader]="'pb-0'" [titleView]="true">
+        <div class="grid grid-cols-12 sm:gap-x-6 gap-x-3 gap-y-3">
+          <div class="xl:col-span-3 col-span-12">
+            <label class="form-label mb-0">Latest Income Tax Return</label>
+            <file-pond class="filepond basic-filepond" [options]="getPondOptions()"
+              [files]="pondFiles['latest_income_tax_return']" (onremovefile)="
+                onFileRemove($event, 1, 'latest_income_tax_return')
+              " (onprocessfile)="
+                onFileProcessed($event, 'upload', 1, 'latest_income_tax_return')
+              ">
+            </file-pond>
+          </div>
+          <div class="xl:col-span-3 col-span-12">
+            <label class="form-label mb-0">Latest Two Year's Financial Statement</label>
+            <file-pond class="filepond basic-filepond" [options]="getPondOptions()"
+              [files]="pondFiles['latest_two_years_financial_statement']" (onremovefile)="
+                onFileRemove($event, 1, 'latest_two_years_financial_statement')
+              " (onprocessfile)="
+                onFileProcessed(
+                  $event,
+                  'upload',
+                  1,
+                  'latest_two_years_financial_statement'
+                )
+              ">
+            </file-pond>
+          </div>
+          <div class="xl:col-span-3 col-span-12">
+            <label class="form-label mb-0">Authorized Person Aadhar Card</label>
+            <file-pond class="filepond basic-filepond" [options]="getPondOptions()"
+              [files]="pondFiles['authorized_person_aadhar_card']" (onremovefile)="
+                onFileRemove($event, 1, 'authorized_person_aadhar_card')
+              " (onprocessfile)="
+                onFileProcessed(
+                  $event,
+                  'upload',
+                  1,
+                  'authorized_person_aadhar_card'
+                )
+              ">
+            </file-pond>
+          </div>
+          <div class="xl:col-span-3 col-span-12">
+            <label class="form-label mb-0">Agreement Document</label>
+            <file-pond class="filepond basic-filepond" [options]="getPondOptions()"
+              [files]="pondFiles['agreement_document']" (onremovefile)="onFileRemove($event, 1, 'agreement_document')"
+              (onprocessfile)="
+                onFileProcessed($event, 'upload', 1, 'agreement_document')
+              ">
+            </file-pond>
+          </div>
+        </div>
+      </app-showcode-card>
+      <!-- Submission END -->
+
+      <div class="box-footer border-t border-block-start-dashed sm:flex justify-end text-right pr-0">
+        <app-button *ngIf="pageType !== 'edit'" [label]="'Preview & Draft'" [buttonType]="'button'"
+          [buttonClass]="'ti-btn ti-btn-secondary m-0 mr-3'" [disabled]="api.disabled" [formType]="pageType"
+          [iconClass]="'ri-draft-line'" [loadingIconClass]="'ri-loader-2-fill'" (click)="onSubmitDraft()">
+        </app-button>
+
+        <app-button [label]="pageType === 'edit' ? 'Update' : 'Submit'" [buttonType]="'submit'"
+          [buttonClass]="'ti-btn ti-btn-primary m-0'" [disabled]="api.disabled" [formType]="pageType"
+          [iconClass]="'ri-save-line'" [loadingIconClass]="'ri-loader-2-fill'"></app-button>
+      </div>
+    </form>
+  </ng-container>
+</div>

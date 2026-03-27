@@ -1,0 +1,21 @@
+<app-switcher></app-switcher>
+
+<div class="page">
+  <ng-container *ngIf="coman?.userData">
+    <app-header></app-header>
+    <app-sidebar appHoverEffectSidebar></app-sidebar>
+  </ng-container>
+  <div
+    class="main-content app-content"
+    [ngClass]="{
+      'ml-0 pt-12 mt-0': !coman?.userData,
+    }"
+  >
+    <div class="container-fluid" (click)="clickOnBody()">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  <app-footer></app-footer>
+  <app-tab-to-top></app-tab-to-top>
+</div>
+<div id="responsive-overlay" (click)="clearToggle()"></div>

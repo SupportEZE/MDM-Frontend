@@ -1,0 +1,137 @@
+<app-page-header
+  [title]="'User'"
+  [title1]="['User detail']"
+  [activeitem]="'User detail'"
+  [buttonText1]="'Edit User'"
+  [icon1]="'edit'"
+  [btnShow1]="true"
+  (buttonClick1)="editPage($event)"
+></app-page-header>
+
+<!-- Start:: row -->
+<div class="grid grid-cols-12 gap-x-6">
+
+  <!-- LEFT SIDE (User Detail) -->
+  <div class="xl:col-span-12 col-span-12">
+
+    <!-- Data View -->
+    <div class="grid grid-cols-12 sm:gap-x-6" *ngIf="!skLoading">
+      <div class="xl:col-span-12 col-span-12">
+        <app-showcode-card
+          [title]="'Basic detail'"
+          [class]="'box-title font-bold text-[15px] block text-primarytint1color'"
+          [titleView]="true"
+        >
+          <ul class="ti-list-group list-group-flush border-0">
+            <li>
+              <div class="flex items-center gap-5 flex-wrap text-[12px]">
+
+                <!-- Created Date -->
+                <div>
+                  <span class="block font-medium">
+                    {{ detail.created_at ? (detail.created_at | date: "d MMM yyyy, hh:mm a") : "--" }}
+                  </span>
+                  <span class="text-textmuted">Date Created</span>
+                </div>
+
+                <!-- Created By -->
+                <div>
+                  <span class="block font-medium">{{ detail.created_name || "--" }}</span>
+                  <span class="text-textmuted">Created By</span>
+                </div>
+
+                <!-- Name -->
+                <div>
+                  <span class="block font-medium">{{ detail.name || "---" }}</span>
+                  <span class="text-textmuted">Name</span>
+                </div>
+
+                <!-- Mobile -->
+                <div>
+                  <span class="block font-medium">{{ detail.mobile || "--" }}</span>
+                  <span class="text-textmuted">Mobile</span>
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <span class="block font-medium">{{ detail.email || "--" }}</span>
+                  <span class="text-textmuted">Email</span>
+                </div>
+
+                <!-- Location -->
+                <div>
+                  <span class="block font-medium">{{ detail.location_id?.option_name || "--" }}</span>
+                  <span class="text-textmuted">Base Location</span>
+                </div>
+
+                <!-- Zone -->
+                <div>
+                  <span class="block font-medium">{{ detail.zone_id?.option_name || "--" }}</span>
+                  <span class="text-textmuted">Zone</span>
+                </div>
+
+                <!-- Reporting Manager -->
+                <div>
+                  <span class="block font-medium">{{ detail.reporting_manager_id?.name || "--" }}</span>
+                  <span class="text-textmuted">Reporting Manager</span>
+                </div>
+
+                <!-- Status -->
+                <div>
+                  <div class="flex gap-2">
+                    <span
+                      [ngClass]="detail?.status === 'Active' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'"
+                      class="text-[11px] badge"
+                    >
+                      {{ detail?.status }}
+                    </span>
+
+                    <app-toggle
+                      *ngIf="accessRight?.approveRight"
+                      [checked]="detail?.status === 'Active'"
+                      (checkedChange)="onToggleChange($event, detail?._id, detail?.status)"
+                    ></app-toggle>
+                  </div>
+                  <span class="text-textmuted">Status</span>
+                </div>
+
+                <!-- Username -->
+                <div *ngIf="detail.username">
+                  <span class="block font-medium">{{ detail.username }}</span>
+                  <span class="text-textmuted">Username</span>
+                </div>
+
+                <!-- Password -->
+                <div *ngIf="detail.password">
+                  <span class="block font-medium">{{ detail.password }}</span>
+                  <span class="text-textmuted">Password</span>
+                </div>
+
+                <!-- Updated At -->
+                <div>
+                  <span class="block font-medium">
+                    {{ detail.updated_at ? (detail.updated_at | date: "d MMM yyyy") : "--" }}
+                  </span>
+                  <span class="text-textmuted">Updated At</span>
+                </div>
+
+              </div>
+            </li>
+          </ul>
+        </app-showcode-card>
+      </div>
+    </div>
+
+    <!-- Skeleton -->
+    <div *ngIf="skLoading">
+      <app-skeleton></app-skeleton>
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDE (Logs) -->
+   <div class="xl:col-span-6 col-span-12">
+              <app-logs [logList]="logList" [closeBtn]="false"></app-logs>
+            </div>
+
+</div>

@@ -1,0 +1,136 @@
+<!-- // ---- Status Start----- // -->
+<div class="mat-dialoge" *ngIf="modalData.type === 'warranty_status'">
+    <app-modal-header [title]="'Change Status'" [closeBtn]="true" (close)="closeModal()">
+    </app-modal-header>
+    <form #f="ngForm" (ngSubmit)="f.valid && statusChange()">
+        <mat-dialog-content class="mat-typography py-1">
+            <div class="">
+                <label class="form-label mb-0">Status {{data.status}}<span class="text-red-500">*</span></label>
+                <mat-form-field class="mat-custom-field remove-space">
+                    <mat-select placeholder="Select an option" [(ngModel)]="data.status" name="status" #status="ngModel"
+                        required>
+                        <mat-option *ngFor="let row of this.modalData.options"
+                            [value]="row.name">{{row.name}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <div class="mt-1 text-xs text-red-500 text-right" *ngIf="status.touched || f.submitted">
+                    <ng-container *ngIf="status.errors?.['required']">This field is required</ng-container>
+                </div>
+            </div>
+
+            <div class="mt-2" *ngIf="data.status === 'Reject'">
+                <label class="form-label mb-0">Reason<span class="text-red-500">*</span></label>
+                <mat-form-field class="mat-custom-field remove-space text-area-height">
+                    <textarea matInput placeholder="Type Here ..." [(ngModel)]="data.reason" name="reason"
+                        #reason="ngModel" required></textarea>
+                </mat-form-field>
+                <div class="mt-1 text-xs text-red-500 text-right" *ngIf="reason.touched || f.submitted">
+                    <ng-container *ngIf="reason.errors?.['required']">This field is required</ng-container>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-12 sm:gap-x-6" *ngIf="data.status === 'Verified'">
+                <div class="xl:col-span-12 col-span-12 mt-3">
+                    <label class="form-label mb-0">MTC Number<span class="text-red-500">*</span></label>
+                    <mat-form-field class="mat-custom-field remove-space w-full">
+                        <input matInput placeholder="Enter MTC Number" [(ngModel)]="data.mtc_number" name="mtc_number"
+                            #mtc_number="ngModel" required />
+                    </mat-form-field>
+                    <div class="mt-1 text-xs text-red-500 text-right" *ngIf="mtc_number.touched || f.submitted">
+                        <ng-container *ngIf="mtc_number.errors?.['required']">This field is required</ng-container>
+                    </div>
+                </div>
+                <div class="xl:col-span-12 col-span-12">
+                    <label class="form-label mb-0">Attachment (PDF)</label>
+                    <file-pond class="filepond basic-filepond" [options]="pondDocumentOptions"
+                        [files]="pondAttachmentFiles"
+                        (onremovefile)="onFileRemove($event, 'warranty_verification_attachment')"
+                        (onprocessfile)="onFileProcessed($event, 'warranty_verification_attachment')"></file-pond>
+                </div>
+            </div>
+        </mat-dialog-content>
+
+        <mat-dialog-actions class="gap-2" align="end">
+            <app-button [buttonType]="'submit'" [buttonClass]="'ti-btn ti-btn-primary m-0'" [disabled]="api.disabled"
+                [formType]="modalData.formType" [iconClass]="'ri-save-line'"
+                [loadingIconClass]="'ri-loader-2-fill'"></app-button>
+        </mat-dialog-actions>
+    </form>
+</div>
+<!-- // -----Status End----- // -->
+
+
+
+
+
+<!-- // ---- Status Start----- // -->
+<div class="mat-dialoge" *ngIf="modalData.type === 'warranty'">
+    <app-modal-header [title]="'Change Status'" [closeBtn]="true" (close)="closeModal()">
+    </app-modal-header>
+    <form #f="ngForm" (ngSubmit)="f.valid && statusChange()">
+        <mat-dialog-content class="mat-typography py-1">
+            <div class="grid grid-cols-12 sm:gap-x-6">
+                <div class="xl:col-span-12 col-span-12">
+                    <label class="form-label mb-0">Attachment (PDF)<span class="text-red-500">*</span></label>
+                    <file-pond class="filepond basic-filepond" [options]="pondDocumentOptions"
+                        [files]="pondAttachmentFiles"
+                        (onremovefile)="onFileRemove($event, 'warranty_verification_attachment')"
+                        (onprocessfile)="onFileProcessed($event, 'warranty_verification_attachment')"></file-pond>
+                </div>
+            </div>
+        </mat-dialog-content>
+
+        <mat-dialog-actions class="gap-2" align="end">
+            <app-button [buttonType]="'submit'" [buttonClass]="'ti-btn ti-btn-primary m-0'" [disabled]="api.disabled"
+                [formType]="modalData.formType" [iconClass]="'ri-save-line'"
+                [loadingIconClass]="'ri-loader-2-fill'"></app-button>
+        </mat-dialog-actions>
+    </form>
+</div>
+<!-- // -----Status End----- // -->
+
+
+
+<!-- --------------- -->
+<div class="mat-dialoge" *ngIf="modalData.type === 'update_warranty' ">
+    <app-modal-header [title]="'Update Warranty Detail'" [closeBtn]="true" (close)="closeModal()">
+    </app-modal-header>
+    <form *ngIf="!skLoading" #warrantyForm="ngForm" [formGroup]="UpdatedDetails"
+        (ngSubmit)="warrantyForm.valid && updateWarranty()">
+        <mat-dialog-content class="mat-typography">
+            <!-- <mat-dialog-content class="mat-typography" *ngIf="!formIniatialized"> -->
+            <div class="grid grid-cols-12 gap-x-6">
+                <div class="xxl:col-span-6 xl:col-span-12 lg:col-span-12 md:col-span-6 col-span-12">
+                    <spk-input label="PO No." formControlName="po_no" class="remove-default-class"
+                        type="text"></spk-input>
+                </div>
+                <div class="xxl:col-span-6 xl:col-span-12 lg:col-span-12 md:col-span-6 col-span-12">
+                    <spk-input label="RO No." formControlName="ro_name" class="remove-default-class"
+                        type="text"></spk-input>
+                </div>
+                <div class="xxl:col-span-6 xl:col-span-12 lg:col-span-12 md:col-span-6 col-span-12">
+                    <spk-input label="RO Code" formControlName="ro_code" class="remove-default-class"></spk-input>
+                </div>
+                <div class="xxl:col-span-6 xl:col-span-12 lg:col-span-12 md:col-span-6 col-span-12">
+                    <spk-input label="Site Address" formControlName="site_address" class="remove-default-class"
+                        type="text"></spk-input>
+                </div>
+            </div>
+        </mat-dialog-content>
+        <mat-dialog-actions align="end">
+            <app-button [buttonType]="'submit'" [buttonClass]="'ti-btn ti-btn-primary m-0'" [disabled]="api.disabled"
+                [formType]="'add'" [iconClass]="'ri-save-line'" [loadingIconClass]="'ri-loader-2-fill'"></app-button>
+        </mat-dialog-actions>
+    </form>
+    <!-- Skeleton -->
+    <div *ngIf="skLoading">
+        <mat-dialog-content class="mat-typography py-1">
+            <div class="grid grid-cols-12 gap-x-6">
+                <div class="xl:col-span-6 col-span-12 mb-3" *ngFor="let card of [].constructor(4)">
+                    <app-skeleton></app-skeleton>
+                </div>
+            </div>
+        </mat-dialog-content>
+    </div>
+
+</div>

@@ -1,0 +1,795 @@
+<app-page-header
+  [title]="'Business Partner'"
+  [title1]="['Business Partner Detail']"
+  [activeitem]="'Business Partner Detail'"
+  [btnShow1]="isShow()"
+  [buttonText1]="'Edit Business Partner'"
+  [icon1]="'edit'"
+  (buttonClick1)="goToDetail()"
+>
+</app-page-header>
+
+<div class="grid grid-cols-12 gap-x-6">
+  <div class="xl:col-span-12 col-span-12">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-6">
+      <nav
+        class="sm:flex sm:space-x-2 sm:rtl:space-x-reverse gap-1"
+        role="tablist"
+      >
+        <app-listing-tab
+          *ngFor="let tab of mainTabs"
+          [tabs]="[{ name: tab.name, label: tab.label, icon: tab.icon }]"
+          [activeTab]="activeTab"
+          (tabChange)="onTabChange($event.tab)"
+          [countShow]="false"
+        >
+        </app-listing-tab>
+      </nav>
+    </div>
+
+    <div class="grid grid-cols-12 sm:gap-x-6" *ngIf="!skLoading">
+      <div class="xl:col-span-12 col-span-12">
+        <div
+          class="xl:col-span-12 col-span-12"
+          *ngIf="activeTab === 'Basic Detail'"
+        >
+          <app-showcode-card
+            [class]="'box-title font-bold text-[15px] block text-primary'"
+            [titleView]="false"
+          >
+            <div class="step-container">
+              <div class="step active" [ngClass]="{ done: Detail?.gst_number }">
+                <div class="circle">
+                  <ng-container *ngIf="!Detail?.gst_number">1</ng-container>
+                  <ng-container *ngIf="Detail?.gst_number">
+                    <i class="material-icons">check</i>
+                  </ng-container>
+                </div>
+                <span class="label">Customer Registration</span>
+              </div>
+              <div class="line"></div>
+
+              <div
+                class="step"
+                [ngClass]="{ done: Detail?.is_account_detail_filled }"
+              >
+                <div class="circle">
+                  <ng-container *ngIf="!Detail?.is_account_detail_filled"
+                    >2</ng-container
+                  >
+                  <ng-container *ngIf="Detail?.is_account_detail_filled">
+                    <i class="material-icons">check</i>
+                  </ng-container>
+                </div>
+                <span class="label">Sales Support</span>
+              </div>
+              <div class="line"></div>
+
+                  <div
+                class="step"
+                [ngClass]="{ done: Detail?.is_account_approval }"
+              >
+                <div class="circle">
+                  <ng-container *ngIf="!Detail?.is_account_approval"
+                    >3</ng-container
+                  >
+                  <ng-container *ngIf="Detail?.is_account_approval">
+                    <i class="material-icons">check</i>
+                  </ng-container>
+                </div>
+                <span class="label">Account Approval</span>
+              </div>
+              <div class="line"></div>
+
+              <div class="step" [ngClass]="{ done: Detail?.is_hod_approved }">
+                <div class="circle">
+                  <ng-container *ngIf="!Detail?.is_hod_approved"
+                    >4</ng-container
+                  >
+                  <ng-container *ngIf="Detail?.is_hod_approved">
+                    <i class="material-icons">check</i>
+                  </ng-container>
+                </div>
+                <span class="label">HOD Approval</span>
+              </div>
+              <div class="line"></div>
+
+              <div
+                class="step"
+                [ngClass]="{
+                  done: isSapVerfiy,
+                }"
+              >
+                <div class="circle">
+                  <ng-container *ngIf="!isSapVerfiy">5</ng-container>
+                  <ng-container *ngIf="isSapVerfiy">
+                    <i class="material-icons">{{
+                      isSapVerfiy ? "verified" : "check"
+                    }}</i>
+                  </ng-container>
+                </div>
+                <span class="label">SAP Verified</span>
+              </div>
+            </div>
+          </app-showcode-card>
+        </div>
+
+        <div
+          class="xl:col-span-12 col-span-12"
+          *ngIf="
+            areAllChecked &&
+            !Detail?.verified_info?.basic_detail &&
+            activeTab === 'Basic Detail'
+          "
+        >
+          <app-showcode-card
+            [class]="'box-title font-bold text-[15px] block text-primary'"
+            [titleView]="false"
+          >
+            <div
+              class="w-full flex items-center"
+              [ngClass]="
+                Detail?.verified_info?.basic_detail_remark
+                  ? 'justify-between'
+                  : 'justify-center'
+              "
+            >
+              <!-- Remark -->
+              <div
+                *ngIf="Detail?.verified_info?.basic_detail_remark"
+                class="flex items-center text-left"
+              >
+                <div>
+                  <span class="block font-medium text-danger">
+                    {{ Detail?.verified_info?.basic_detail_remark }}
+                  </span>
+                  <span class="text-textmuted dark:text-textmuted/50 text-xs">
+                    Rejected Remark
+                  </span>
+                </div>
+              </div>
+
+              <!-- Buttons -->
+              <div class="flex items-center gap-3">
+                <button
+                  type="button"
+                  class="ti-btn ti-btn-success label-ti-btn label-end"
+                  (click)="approveVerification()"
+                >
+                  <i class="ri-thumb-up-line label-ti-btn-icon ms-2"></i>
+                  Approved
+                </button>
+
+                <button
+                  type="button"
+                  class="ti-btn ti-btn-danger label-ti-btn label-end !rounded"
+                  (click)="openModal('reject')"
+                >
+                  <i
+                    class="ri-thumb-down-line label-ti-btn-icon ms-2 !rounded"
+                  ></i>
+                  Reject
+                </button>
+              </div>
+            </div>
+          </app-showcode-card>
+        </div>
+
+        <div class="grid grid-cols-12 sm:gap-x-6">
+          <!-- Basic Information -->
+          <div
+            class="xl:col-span-6 col-span-12"
+            *ngIf="activeTab === 'Basic Detail'"
+          >
+            <app-showcode-card
+              [title]="'Basic Information'"
+              [class]="'box-title font-bold text-[15px] block text-primary'"
+              [boxHeader]="'pb-0'"
+              [titleView]="true"
+              [isCheckbox]="comanFun.IsCheckBoxAccess"
+              [checkboxLabel]="'Select'"
+              [checkboxChecked]="checkedStates['basicInfo']"
+              [readonly]="Detail?.verified_info?.basic_detail"
+              (checkboxChange)="onSectionCheckChange('basicInfo', $event)"
+            >
+              <ul class="ti-list-group list-group-flush border-0">
+                <li>
+                  <div class="flex items-center gap-5 flex-wrap text-[12px]">
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.gst_number || "--" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          GST Number
+                        </span>
+                      </div>
+                    </div>
+
+                         <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.company_name || "--" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Company Name
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.legal_name || "--" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Legal Name
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.mobile || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Contact Number
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.email || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Email
+                        </span>
+                      </div>
+                    </div>
+
+                     <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.website_url || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Website Url
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </app-showcode-card>
+          </div>
+
+          <!-- Contact Person -->
+          <div
+            class="xl:col-span-6 col-span-12"
+            *ngIf="activeTab === 'Basic Detail'"
+          >
+            <app-showcode-card
+              [title]="'Contact Person Information'"
+              [class]="'box-title font-bold text-[15px] block text-primary'"
+              [boxHeader]="'pb-0'"
+              [titleView]="true"
+              [isCheckbox]="comanFun.IsCheckBoxAccess"
+              [checkboxLabel]="'Select'"
+              [checkboxChecked]="checkedStates['contactPerson']"
+              [readonly]="Detail?.verified_info?.basic_detail"
+              (checkboxChange)="onSectionCheckChange('contactPerson', $event)"
+            >
+              <ul class="ti-list-group list-group-flush border-0">
+                <li>
+                  <div class="flex items-center gap-5 flex-wrap text-[12px]">
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.contact_person_name || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Contact Person Name
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.contact_person_designation || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Designation
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.contact_person_mobile || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Mobile
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.contact_person_email || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Email
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </app-showcode-card>
+          </div>
+
+          <!-- BILL TO ADDRESS -->
+          <div
+            class="xl:col-span-6 col-span-12"
+            *ngIf="activeTab === 'Basic Detail'"
+          >
+            <app-showcode-card
+              [title]="'Bill To'"
+              [class]="'box-title font-bold text-[15px] block text-primary'"
+              [boxHeader]="'pb-0'"
+              [titleView]="true"
+              [isCheckbox]="comanFun.IsCheckBoxAccess"
+              [checkboxLabel]="'Select'"
+              [checkboxChecked]="checkedStates['billTo']"
+              [readonly]="Detail?.verified_info?.basic_detail"
+              (checkboxChange)="onSectionCheckChange('billTo', $event)"
+            >
+              <ul class="ti-list-group list-group-flush border-0">
+                <li>
+                  <div class="flex items-center gap-5 flex-wrap text-[12px]">
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.bill_to_pincode || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Pincode
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.bill_to_city || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          City
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.bill_to_state || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          State
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.bill_to_block || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Block
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.bill_to_address || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Address
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </app-showcode-card>
+          </div>
+
+          <!-- SHIP TO ADDRESS -->
+          <div
+            class="xl:col-span-6 col-span-12"
+            *ngIf="activeTab === 'Basic Detail'"
+          >
+            <app-showcode-card
+              [title]="'Ship To'"
+              [class]="'box-title font-bold text-[15px] block text-primary'"
+              [boxHeader]="'pb-0'"
+              [titleView]="true"
+              [isCheckbox]="comanFun.IsCheckBoxAccess"
+              [checkboxLabel]="'Select'"
+              [checkboxChecked]="checkedStates['shipTo']"
+              [readonly]="Detail?.verified_info?.basic_detail"
+              (checkboxChange)="onSectionCheckChange('shipTo', $event)"
+            >
+              <ul class="ti-list-group list-group-flush border-0">
+                <li>
+                  <div class="flex items-center gap-5 flex-wrap text-[12px]">
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.ship_to_pincode || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Pincode
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.ship_to_city || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          City
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.ship_to_state || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          State
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.ship_to_block || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Block
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.ship_to_address || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Address
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </app-showcode-card>
+          </div>
+
+          <!-- Bank Information -->
+          <div
+            class="xl:col-span-6 col-span-12"
+            *ngIf="activeTab === 'Basic Detail'"
+          >
+            <app-showcode-card
+              [title]="'Bank Information'"
+              [class]="'box-title font-bold text-[15px] block text-primary'"
+              [boxHeader]="'pb-0'"
+              [titleView]="true"
+              [isCheckbox]="comanFun.IsCheckBoxAccess"
+              [checkboxLabel]="'Select'"
+              [checkboxChecked]="checkedStates['bankInfo']"
+              [readonly]="Detail?.verified_info?.basic_detail"
+              (checkboxChange)="onSectionCheckChange('bankInfo', $event)"
+            >
+              <ul class="ti-list-group list-group-flush border-0">
+                <li>
+                  <div class="flex items-center gap-5 flex-wrap text-[12px]">
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.bank_account_number || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Bank Account Number
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.bank_ifsc_code || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Bank IFSC Code
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.bank_name || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Bank Name
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.account_name || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Account Name
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.bank_branch_name || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Branch Name
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </app-showcode-card>
+          </div>
+
+          <!-- Tax Information -->
+          <div
+            class="xl:col-span-6 col-span-12"
+            *ngIf="activeTab === 'Basic Detail'"
+          >
+            <app-showcode-card
+              [title]="'Tax Information'"
+              [class]="'box-title font-bold text-[15px] block text-primary'"
+              [boxHeader]="'pb-0'"
+              [titleView]="true"
+              [isCheckbox]="comanFun.IsCheckBoxAccess"
+              [checkboxLabel]="'Select'"
+              [checkboxChecked]="checkedStates['taxInfo']"
+              [readonly]="Detail?.verified_info?.basic_detail"
+              (checkboxChange)="onSectionCheckChange('taxInfo', $event)"
+            >
+              <ul class="ti-list-group list-group-flush border-0">
+                <li>
+                  <div class="flex items-center gap-5 flex-wrap text-[12px]">
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.gst_number || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          GST IN
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.gst_type_id?.option_name || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          GST Type
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.company_type || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Company Type
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.nature_of_business || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Nature of Business
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.access_type || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Assessee Type
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.pan_number || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          PAN Number
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                         {{ Detail?.is_msme_udyam ? 'Yes' : 'No' }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Udyam/MSME Registration
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center me-2 flex-wrap">
+                      <div>
+                        <span class="block font-medium text-primay">
+                          {{ Detail?.msme_udyam_number || "---" }}
+                        </span>
+                        <span class="text-textmuted dark:text-textmuted/50">
+                          Udyam/MSME Registration No
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </app-showcode-card>
+          </div>
+          <ng-container *ngIf="activeTab === 'Basic Detail'">
+            <div class="xl:col-span-6 col-span-12">
+              <app-showcode-card
+                [title]="'Document Detail'"
+                [class]="'box-title font-bold text-[15px] block text-primary'"
+                [titleView]="true"
+                [iconClass]="
+                  'ti-btn btn-wave ti-btn-sm ti-btn-soft-primary waves-effect waves-light'
+                "
+                (action)="openModal('document')"
+                [classbody]="'pt-0'"
+                [iconName]="'ri-add-line'"
+                [isCheckbox]="comanFun.IsCheckBoxAccess"
+                [checkboxLabel]="'Select'"
+                [checkboxChecked]="checkedStates['documentInfo']"
+                [readonly]="Detail?.verified_info?.basic_detail"
+                (checkboxChange)="onSectionCheckChange('documentInfo', $event)"
+              >
+                <div class="grid grid-cols-12 sm:gap-x-3 gap-3">
+                  <div
+                    class="xl:col-span-2 lg:col-span-2 xl:col-span-2 sm:col-span-4 col-span-4"
+                    *ngFor="let image of document"
+                  >
+                    <spk-product-card
+                      [apiPath]="'customer/get-doc'"
+                      [imageData]="image"
+                      [delBtn]="false"
+                      [editBtn]="accessRight?.modifyRight"
+                      [heading]="true"
+                      [subHeading]="true"
+                      (edit)="openModal('document_image', image)"
+                      (editNumber)="openModal('document_number', image)"
+                      (delete)="delete(image._id, 'customer/-file', 'delete')"
+                      (deleteDoc)="docRemove(image._id)"
+                      [deleDoc]="accessRight?.deleteRight"
+                    >
+                    </spk-product-card>
+                  </div>
+                </div>
+                <ul
+                  class="ti-list-group list-group-flush border-0"
+                  *ngIf="document.length === 0"
+                >
+                  <li>
+                    <p>No Data Available</p>
+                  </li>
+                </ul>
+              </app-showcode-card>
+            </div>
+            <div class="xl:col-span-6 col-span-12">
+              <app-logs [logList]="logList" [closeBtn]="false"></app-logs>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skeleton Loader -->
+    <div
+      class="grid grid-cols-12 sm:gap-x-6"
+      *ngIf="skLoading && activeTab === 'Basic Detail'"
+    >
+      <div class="xl:col-span-12 col-span-12">
+        <app-showcode-card [titleView]="false" [view]="false">
+          <div class="flex gap-2 mb-1 flex-wrap">
+            <div
+              class="flex items-center"
+              *ngFor="let card of [].constructor(10)"
+            >
+              <app-skeleton [class]="'w180'"></app-skeleton>
+            </div>
+          </div>
+        </app-showcode-card>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-container *ngIf="activeTab === 'Sales Support'">
+  <app-sales-support-add
+    [verificationId]="verificationId"
+    [basicDetail]="Detail"
+    (refreshBasicDetail)="getDetail()"
+    [isSapVerfiy]="isSapVerfiy"
+  ></app-sales-support-add>
+
+  <app-account-add
+    [basicDetail]="Detail"
+    (refreshBasicDetail)="getDetail()"
+    [isAccountLogin]="isAccountLogin"
+    [isSapVerfiy]="isSapVerfiy"
+  ></app-account-add>
+</ng-container>
+
+<ng-container *ngIf="activeTab === 'HOD'">
+  <app-sales-hod-add
+    [verificationId]="verificationId"
+    [basicDetail]="Detail"
+    (refreshBasicDetail)="getDetail()"
+    [isSapVerfiy]="isSapVerfiy"
+  ></app-sales-hod-add>
+</ng-container>
+
+<ng-container *ngIf="activeTab === 'SAP Verified'">
+  <app-verified
+    [basicDetail]="Detail"
+    (refreshBasicDetail)="getDetail()"
+  ></app-verified>
+</ng-container>
+
+<!-- End:: row-1 -->
