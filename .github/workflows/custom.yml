@@ -46,7 +46,8 @@ jobs:
             cd /opt/docker/ozonemdm
 
             echo "Removing old image if exists"
-            sudo docker image rm ozonemdm-frontend || true
+            sudo docker compose stop ozonemdm || true
+            sudo docker image rm -f ozonemdm-frontend || true
 
             echo "Loading new docker image"
             sudo gunzip -c frontend.tar.gz | sudo docker load
