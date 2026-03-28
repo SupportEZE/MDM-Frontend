@@ -27,7 +27,7 @@ export class ApiService {
   // public baseUrl  ='http://192.168.0.108:9001/eurobond/';
 
   
-public rootUrl = 'http://13.127.63.13:8080/';
+public rootUrl = 'https://docker.ezeone.tech/';
 public upload = 'http://13.127.63.13:9010';
 public baseUrl = 'http://13.127.63.13:9010/api/';
 public authUrl = 'http://13.127.63.13:9010/api/auth/';
