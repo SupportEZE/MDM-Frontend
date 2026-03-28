@@ -27,12 +27,12 @@ export class ApiService {
   // public baseUrl  ='http://192.168.0.108:9001/eurobond/';
 
   
-public rootUrl = 'https://docker.ezeone.tech/';
-public upload = 'https://docker.ezeone.tech:9010';
-public baseUrl = 'https://docker.ezeone.tech:9010/api/';
-public authUrl = 'https://docker.ezeone.tech:9010/api/auth/';
-public adminUrl = 'https://docker.ezeone.tech:9010/api/';
-public webSocketUrl = 'https://docker.ezeone.tech:9010';
+      public rootUrl = 'https://docker.ezeone.tech/';
+      public upload = 'https://docker.ezeone.tech';
+      public baseUrl = 'https://docker.ezeone.tech/api/';
+      public authUrl = 'https://docker.ezeone.tech/api/auth/';
+      public adminUrl = 'https://docker.ezeone.tech/api/';
+      public webSocketUrl = 'https://docker.ezeone.tech';
   // public rootUrl = 'https://ozonemdmdev.ezeone.tech/ozonemdm/';
   // public upload = 'https://ozonemdmdev.ezeone.tech';
   // public baseUrl = 'https://mgvrz3tb-9006.inc1.devtunnels.ms/api/';
