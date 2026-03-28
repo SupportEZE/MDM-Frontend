@@ -28,11 +28,11 @@ export class ApiService {
 
   
 public rootUrl = 'https://docker.ezeone.tech/';
-public upload = 'http://13.127.63.13:9010';
-public baseUrl = 'http://13.127.63.13:9010/api/';
-public authUrl = 'http://13.127.63.13:9010/api/auth/';
-public adminUrl = 'http://13.127.63.13:9010/api/';
-public webSocketUrl = 'http://13.127.63.13:9010';
+public upload = 'https://docker.ezeone.tech:9010';
+public baseUrl = 'https://docker.ezeone.tech:9010/api/';
+public authUrl = 'https://docker.ezeone.tech:9010/api/auth/';
+public adminUrl = 'https://docker.ezeone.tech:9010/api/';
+public webSocketUrl = 'https://docker.ezeone.tech:9010';
   // public rootUrl = 'https://ozonemdmdev.ezeone.tech/ozonemdm/';
   // public upload = 'https://ozonemdmdev.ezeone.tech';
   // public baseUrl = 'https://mgvrz3tb-9006.inc1.devtunnels.ms/api/';
